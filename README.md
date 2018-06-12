@@ -4,9 +4,9 @@
 
 ### Goal
 
-The goal of the project is to develop a machine learning-based solution to automatically identifies people who have been involved in the [Enron financial scandal](https://en.wikipedia.org/wiki/Enron_scandal), which led the company goes to bankrupt. The data set is composed of financial information of 146 Enron’s employees, including their salary, bonuses, total payment received, long advances, exercised stock options. Also, there is information about the number of emails messages sent/received by the person as well as how many of these messages are from or to people who were suspected to be involved in the scandal. Data set also contains information about the number of emails in which the person shared receipt with a suspected employee (a.k.a. a person of interest or poi). This information can be used to identify patterns in the financial movements and communication activities of the Enron’s employees who were involved in the scandal.
+The goal of the project is to develop a machine learning-based solution to automatically identifies people who have been involved in the [Enron financial scandal](https://en.wikipedia.org/wiki/Enron_scandal), which led the company goes to bankrupt. The data set is composed of financial information of 146 Enron’s employees, including their salary, bonuses, total payment received, long advances, exercised stock options. Also, there is information about the number of emails messages sent/received by the person as well as how many of these messages are from or to people who were suspected to be involved in the scandal. The data set also contains information about the number of emails in which the person shared receipt with a suspected employee (a.k.a. a person of interest or poi). This information can be used to identify patterns in the financial movements and communication activities of the Enron’s employees who were involved in the scandal.
 
-I identified two records with nonsense names (i.e., TOTAL and THE TRAVEL AGENCY IN THE PARK) and 1 with all missing values. The three were removed before features selection. Also, depending on the features selected, I checked whether they have at least 10% of the values available. Features that don’t comply with this requirement are removed before training the model.
+The data set is unbalaced considering the number of poi cases vs non poi cases. In total, there are 18 data points related to person of interest while 128 of non poi. I identified two records with nonsense names (i.e., TOTAL and THE TRAVEL AGENCY IN THE PARK) and 1 with all missing values. The three were removed before features selection. Also, depending on the features selected, I checked whether they have at least 10% of the values available. Features that don’t comply with this requirement are removed before training the model.
 
 ### Features
 
@@ -31,7 +31,9 @@ I ended up using 16 features, namely:
 {'score': 15.838094949193755, 'name': 'fraction_to_poi'}]
 ```
 
-Almost all of them contain information provided in the original data set except fraction_to_poi which is a feature that computes the proportion of emails that a given person sends to poi. I haven’t done any scaling because I did not consider necessary for the algorithms used. The selection of features was performed automatically and iterative using SelectKBest. Initially, a minimum number of features was chosen arbitrarily as a baseline (half of the total 10 in this case), and then we iterate from this baseline to the total features (20) trying to identify the number and combination of features that produce the best result.
+Almost all of them contain information provided in the original data set except **fraction_to_poi** which is a feature that computes the proportion of emails that a given person sends to poi. I understand that representing the flow of communication between employeers in relative than in absolute numbers is a more robust measure since it reduces the effect of extreme values.
+
+I haven’t done any scaling because I did not consider necessary for the algorithms used. The selection of features was performed automatically and iterative using SelectKBest Initially, a minimum number of features was chosen arbitrarily as a baseline (half of the total 10 in this case), and then we iterate from this baseline to the total features (20) trying to identify the number and combination of features that produce the best result.
 
 ### Algorithms
 
@@ -64,7 +66,16 @@ Recall: 0.0
 
 Tuning parameters allow improving the performance of the algorithm making it more tailored to the data at hand. Algorithms can underperform if they are not parameterized considering the data available and context-specific information. In my case, I manually tried different combinations of parameters until being satisfied with the result.
 
-In the case of Decision Trees, I modified the criterion setting it as entropy and also the minimum sample split. By following a manual trial and error approach, I tested different numbers for the minimum sample split, ended up choosing five which showed to best option in this case. A similar procedure was followed in the case of the Support Vector Machine algorithm, where I played with different combinations of the parameters gamma and C until finding the mix with the highest accuracy. The precision and recall metrics did change with the variations I tried. The Naive-Bayes (Gaussian) algorithm only has one parameter which I left untouched.
+In the case of Decision Trees, I modified the criterion setting it as entropy and also the minimum sample split. By following a manual trial and error approach, I tested different numbers for the minimum sample split, ended up choosing five which showed to best option in this case. A similar procedure was followed in the case of the Support Vector Machine algorithm, where I played with different combinations of the parameters gamma and C however could not find difference in the assssment metrics, probably because SVM is more sensible to unbalanced data and I did not conducted a stratified shuffle of data before evaluating. The Naive-Bayes (Gaussian) algorithm only has one parameter which I left untouched.
+
+| Algorithm      | Parameters/values                        | Accuracy  | Precision | Recall |
+| -------------  | ---------------------------------------- | :--------:| :-------: | :----: |
+| Decision Trees | criterion=entropy, min_samples_split=15  | 0.88      |  0.8      | 0.5    |
+| Decision Trees | criterion=entropy, min_samples_split=5   | 0.93      |  0.8      | 0.6    |
+| Decision Trees | criterion=entropy, min_samples_split=2   | 0.91      |  0.8      | 0.6    |
+| SVM            | gamma=1, C=1000                          | 0.88      | 0         | 0      |
+| SVM            | gamma=100, C=10                          | 0.88      | 0         | 0      |
+| SVM            | gamma=1000, C=1                          | 0.88      | 0         | 0      |
 
 ### Validation
 
